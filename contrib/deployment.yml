@@ -1,0 +1,31 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: safeguard
+  name: safeguard
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: safeguard
+    spec:
+      containers:
+      - name: admisson-controller
+        image: joelws/safeguard:latest
+        volumeMounts:
+        - name: certs
+          mountPath: /certs
+          readOnly: true
+        resources:
+          limits:
+            cpu: 200m
+            memory: 100Mi
+          requests:
+            cpu: 100m
+            memory: 50Mi
+      volumes:
+      - name: certs
+        secret:
+          secretName: tls
