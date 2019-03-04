@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: admisson-controller
-        image: joelws/safeguard:latest
+        image: joelws/safeguard:0.2
         volumeMounts:
         - name: certs
           mountPath: /certs

@@ -1,12 +1,13 @@
 package main
 
 import (
+	"log"
+	"net/http"
+
 	"github.com/gorilla/mux"
 	"github.com/jw-s/safeguard/pkg/route"
 	"github.com/jw-s/safeguard/pkg/service"
 	"k8s.io/client-go/rest"
-	"log"
-	"net/http"
 )
 
 func main() {
@@ -24,5 +25,5 @@ func main() {
 
 	r.Handle("/protected", route.ProtectedResource(protectedSvc))
 
-	log.Fatal(http.ListenAndServeTLS(":443", "/certs/tls.crt", "/certs/tls.key", r))
+	log.Fatal(http.ListenAndServeTLS(":8080", "/certs/tls.crt", "/certs/tls.key", r))
 }

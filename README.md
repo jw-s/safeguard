@@ -34,8 +34,7 @@ metadata:
 
 ## Development
 ### Prerequistities
-* Go 1.10.x
-* [glide](https://github.com/Masterminds/glide)
+* Go 1.12.x
 * Make
 
 ```bash
