@@ -18,5 +18,5 @@ COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /go/src/github.com/jw-s/safeguard/bin/safeguard /opt/safeguard
 USER safeguard
-EXPOSE 443
-ENTRYPOINT ["/opt/safeguard"]
+EXPOSE 8080
+ENTRYPOINT ["/opt/safeguard", "-logtostderr"]
