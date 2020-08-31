@@ -1,6 +1,7 @@
 package main
 
 import (
+	"k8s.io/klog"
 	"log"
 	"net/http"
 
@@ -13,7 +14,7 @@ import (
 func main() {
 	cfg, err := rest.InClusterConfig()
 	if err != nil {
-		panic("Could not create In-cluster config: " + err.Error())
+		klog.Fatalf("Could not create In-cluster config: %v", err)
 	}
 
 	var (
