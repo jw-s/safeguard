@@ -2,7 +2,7 @@ package service
 
 import (
 	"encoding/json"
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	"github.com/jw-s/safeguard/pkg/util"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -36,7 +36,7 @@ func (s *protectedResourceService) IsProtected(name, namespace string, gvr v1.Gr
 	client, err := s.clientGenFunc(apiPath, gvr)
 
 	if err != nil {
-		glog.Error(err)
+		klog.Error(err)
 		return false, err
 	}
 
@@ -57,10 +57,10 @@ func (s *protectedResourceService) IsProtected(name, namespace string, gvr v1.Gr
 	b, err := clientReq.DoRaw()
 
 	if err != nil {
-		glog.Error(err)
 		if errors.IsNotFound(err) {
 			return false, nil
 		}
+		klog.Error(err)
 		return false, err
 	}
 
@@ -77,7 +77,7 @@ func (s *protectedResourceService) IsProtected(name, namespace string, gvr v1.Gr
 	err = json.Unmarshal(b, &o)
 
 	if err != nil {
-		glog.Error(err)
+		klog.Error(err)
 		return false, err
 	}
 
@@ -90,7 +90,7 @@ func (s *protectedResourceService) IsProtected(name, namespace string, gvr v1.Gr
 	protected, err := strconv.ParseBool(v)
 
 	if err != nil {
-		glog.Error(err)
+		klog.Error(err)
 		return false, err
 	}
 

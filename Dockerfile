@@ -1,4 +1,4 @@
-FROM golang:1.12.0 as builder
+FROM golang:1.15.0 as builder
  
 RUN useradd -u 10001 safeguard
   
@@ -12,7 +12,7 @@ COPY . .
 RUN make build
 
 FROM scratch
- 
+VOLUME /tmp
 WORKDIR /opt
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
