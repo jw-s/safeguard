@@ -1,13 +1,15 @@
 package service
 
 import (
+	"context"
 	"encoding/json"
-	"k8s.io/klog"
+	"strconv"
+
 	"github.com/jw-s/safeguard/pkg/util"
 	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/rest"
-	"strconv"
+	"k8s.io/klog"
 )
 
 const (
@@ -15,7 +17,7 @@ const (
 )
 
 type ProtectedResourceService interface {
-	IsProtected(name, namespace string, gvr v1.GroupVersionResource) (bool, error)
+	IsProtected(ctx context.Context, name, namespace string, gvr v1.GroupVersionResource) (bool, error)
 }
 
 type Config struct {
@@ -26,7 +28,7 @@ type protectedResourceService struct {
 	clientGenFunc func(apiPath string, gvr v1.GroupVersionResource) (*rest.RESTClient, error)
 }
 
-func (s *protectedResourceService) IsProtected(name, namespace string, gvr v1.GroupVersionResource) (bool, error) {
+func (s *protectedResourceService) IsProtected(ctx context.Context, name, namespace string, gvr v1.GroupVersionResource) (bool, error) {
 
 	apiPath := "/api"
 	if gvr.Group != "" {
@@ -54,7 +56,7 @@ func (s *protectedResourceService) IsProtected(name, namespace string, gvr v1.Gr
 		clientReq = clientReq.Namespace(namespace)
 	}
 
-	b, err := clientReq.DoRaw()
+	b, err := clientReq.DoRaw(ctx)
 
 	if err != nil {
 		if errors.IsNotFound(err) {

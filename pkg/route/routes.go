@@ -2,12 +2,13 @@ package route
 
 import (
 	"encoding/json"
-	"github.com/jw-s/safeguard/pkg/service"
 	"io/ioutil"
-	"k8s.io/api/admission/v1beta1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
 	"net/http"
+
+	"github.com/jw-s/safeguard/pkg/service"
+	admissionv1 "k8s.io/api/admission/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 func ProtectedResource(service service.ProtectedResourceService) http.HandlerFunc {
@@ -25,7 +26,7 @@ func ProtectedResource(service service.ProtectedResourceService) http.HandlerFun
 			return
 		}
 
-		ar := v1beta1.AdmissionReview{}
+		ar := admissionv1.AdmissionReview{}
 
 		if err := json.Unmarshal(body, &ar); err != nil {
 			writer.WriteHeader(http.StatusBadRequest)
@@ -33,9 +34,14 @@ func ProtectedResource(service service.ProtectedResourceService) http.HandlerFun
 			return
 		}
 
-		res := v1beta1.AdmissionReview{}
+		res := admissionv1.AdmissionReview{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       ar.Kind,
+				APIVersion: ar.APIVersion,
+			},
+		}
 
-		if ar.Request.Operation != v1beta1.Delete {
+		if ar.Request.Operation != admissionv1.Delete {
 			res.Response = ToAdmissionResponse(true, ar.Request.UID, "Not a delete operation")
 
 			b, err := json.Marshal(res)
@@ -49,7 +55,7 @@ func ProtectedResource(service service.ProtectedResourceService) http.HandlerFun
 			return
 		}
 
-		protected, err := service.IsProtected(ar.Request.Name, ar.Request.Namespace, ar.Request.Resource)
+		protected, err := service.IsProtected(request.Context(), ar.Request.Name, ar.Request.Namespace, ar.Request.Resource)
 
 		if err != nil {
 			writer.WriteHeader(http.StatusBadRequest)
@@ -72,17 +78,15 @@ func ProtectedResource(service service.ProtectedResourceService) http.HandlerFun
 		}
 		writer.WriteHeader(http.StatusOK)
 		writer.Write(b)
-		return
-
 	}
 
 }
 
-func ToAdmissionResponse(allowed bool, uid types.UID, message string) *v1beta1.AdmissionResponse {
-	return &v1beta1.AdmissionResponse{
+func ToAdmissionResponse(allowed bool, uid types.UID, message string) *admissionv1.AdmissionResponse {
+	return &admissionv1.AdmissionResponse{
 		UID:     uid,
 		Allowed: allowed,
-		Result: &v1.Status{
+		Result: &metav1.Status{
 			Message: message,
 		},
 	}
